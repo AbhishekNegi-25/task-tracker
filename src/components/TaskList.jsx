@@ -13,7 +13,7 @@ import {
   EmptyStatePaper,
   StyledActionContainer,
   StyledIconGroup,
-} from "./StyledComponents";
+} from "../styles/StyledComponents";
 
 const TaskList = ({
   tasks,

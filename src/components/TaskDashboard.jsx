@@ -27,7 +27,7 @@ import {
   RightColumn,
   TaskListContainer,
   StyledButton,
-} from "./StyledComponents";
+} from "../styles/StyledComponents";
 import {
   deleteTask,
   toggleComplete,

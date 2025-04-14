@@ -1,19 +1,10 @@
 import React from "react";
-import { TextField } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  boxShadow: theme.shadows[1],
-  marginBottom: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius,
-  "& .MuiInputLabel-root": {
-    color: theme.palette.text.primary,
-  },
-}));
+import { SearchField } from "../styles/StyledComponents";
 
 const SearchBar = ({ onSearch }) => {
   return (
-    <StyledTextField
+    <SearchField
       label="Search Tasks"
       variant="outlined"
       fullWidth

@@ -17,7 +17,7 @@ import {
   ChartFlexContainer,
   ChartWrapper,
   CompletionText,
-} from "./StyledComponents";
+} from "../styles/StyledComponents";
 
 const TaskCompletionStats = ({ tasks }) => {
   const completedTasks = tasks.filter((task) => task.completed).length;

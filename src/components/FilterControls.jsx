@@ -3,7 +3,7 @@ import {
   StyledToggleButton,
   StyledToggleButtonGroup,
   StyledPaper,
-} from "./StyledComponents";
+} from "../styles/StyledComponents";
 
 const FilterControls = ({ onFilter, filter }) => {
   return (

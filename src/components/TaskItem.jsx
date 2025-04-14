@@ -14,7 +14,7 @@ import {
   Check as CheckIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { StyledCard } from "./StyledComponents";
+import { StyledCard } from "../styles/StyledComponents";
 
 const priorityLabels = [
   {

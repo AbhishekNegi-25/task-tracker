@@ -17,7 +17,7 @@ import {
   StyledSelect,
   StyledTypography,
   FormButton,
-} from "./StyledComponents";
+} from "../styles/StyledComponents";
 
 const priorityOptions = [
   { value: "High", label: "High" },

@@ -264,3 +264,12 @@ export const StyledToggleButton = styled(ToggleButton)(
     },
   })
 );
+
+export const SearchField = styled(TextField)(({ theme }) => ({
+  boxShadow: theme.shadows[1],
+  marginBottom: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius,
+  "& .MuiInputLabel-root": {
+    color: theme.palette.text.primary,
+  },
+}));
