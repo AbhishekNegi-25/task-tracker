@@ -4,7 +4,6 @@ import { setFilter } from "../features/tasks/taskSlice";
 import {
   ToggleButton,
   ToggleButtonGroup,
-  Typography,
   Paper,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";

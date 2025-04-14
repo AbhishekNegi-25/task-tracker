@@ -10,9 +10,6 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 const StyledTaskContainer = styled("div")(
   ({ theme, isDragging, completed }) => ({
-    backgroundColor: completed
-      ? theme.palette.action.selected
-      : theme.palette.background.paper,
     borderLeft: `6px solid ${
       completed
         ? theme.palette.success.main
