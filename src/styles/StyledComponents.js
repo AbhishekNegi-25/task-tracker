@@ -1,4 +1,4 @@
-import { styled } from "@mui/material/styles";
+import { styled, alpha } from "@mui/material/styles";
 import {
   Typography,
   TextField,
@@ -62,7 +62,7 @@ export const TaskScrollContainer = styled("div")(({ theme }) => ({
 
 export const StyledTaskContainer = styled("div")(
   ({ theme, isDragging, completed }) => ({
-    borderLeft: `6px solid ${
+    borderLeft: `8px solid ${
       completed
         ? theme.palette.success.main
         : theme.palette.mode === "light"
@@ -73,7 +73,7 @@ export const StyledTaskContainer = styled("div")(
       ? theme.palette.action.hover
       : theme.palette.background.paper,
     boxShadow: isDragging ? theme.shadows[4] : theme.shadows[1],
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: 8,
     marginBottom: theme.spacing(1),
     padding: theme.spacing(0.8),
     display: "flex",
@@ -184,13 +184,31 @@ export const StyledButton = styled(Button)(({ theme }) => ({
 
 // Tasks
 
-export const StyledCard = styled(Paper)(({ theme, completed }) => ({
-  padding: theme.spacing(2),
-  boxShadow: theme.shadows[0.1],
-  backgroundColor: completed
-    ? theme.palette.action.selected
-    : theme.palette.background.paper,
-}));
+export const StyledCard = styled(Paper)(({ theme, completed, priority }) => {
+  let borderColor;
+
+  switch (priority) {
+    case "High":
+      borderColor = theme.palette.error.main;
+      break;
+    case "Medium":
+      borderColor = theme.palette.warning.main;
+      break;
+    case "Low":
+      borderColor = theme.palette.info.main;
+      break;
+    default:
+      borderColor = theme.palette.divider;
+  }
+
+  return {
+    padding: theme.spacing(2),
+    boxShadow: theme.shadows[1],
+    borderRadius: 5,
+    border: `2px solid ${borderColor}`,
+    backgroundColor: alpha(borderColor, 0.3), // Slightly tinted background
+  };
+});
 
 export const StyledActionContainer = styled("div")(({ theme }) => ({
   display: "flex",

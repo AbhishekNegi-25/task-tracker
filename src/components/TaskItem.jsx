@@ -37,7 +37,11 @@ const TaskItem = ({ task, onDelete, onEdit, toggleTaskStatus }) => {
   const [editDescription, setEditDescription] = useState(task.description);
 
   return (
-    <StyledCard sx={{ width: "100%" }} completed={task.completed}>
+    <StyledCard
+      sx={{ width: "100%" }}
+      completed={task.completed}
+      priority={task.priority}
+    >
       <Box display="flex" flexDirection="column" gap={2}>
         <Box
           display="flex"
