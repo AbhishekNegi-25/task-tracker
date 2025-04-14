@@ -206,19 +206,19 @@ export const StyledCard = styled(Paper)(({ theme, completed, priority }) => {
     boxShadow: theme.shadows[1],
     borderRadius: 5,
     border: `2px solid ${borderColor}`,
-    backgroundColor: alpha(borderColor, 0.3), // Slightly tinted background
+    backgroundColor: alpha(borderColor, 0.3),
   };
 });
 
 export const StyledActionContainer = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
-  marginBottom: theme.spacing(2.5), // marginBottom of 20px (2.5 * 8px)
+  marginBottom: theme.spacing(2.5),
 }));
 
 export const StyledIconGroup = styled("div")(({ theme }) => ({
   display: "flex",
-  gap: theme.spacing(1.25), // gap between icons (10px)
+  gap: theme.spacing(1.25),
 }));
 
 //Task form
