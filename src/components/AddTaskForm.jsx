@@ -2,18 +2,22 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addTask } from "../features/tasks/taskSlice";
 import {
-  Button,
   TextField,
   Box,
-  Typography,
   InputLabel,
   MenuItem,
-  Select,
   Chip,
   useMediaQuery,
   Autocomplete,
   useTheme,
 } from "@mui/material";
+import {
+  StyledBox,
+  StyledTextField,
+  StyledSelect,
+  StyledTypography,
+  FormButton,
+} from "./StyledComponents";
 
 const priorityOptions = [
   { value: "High", label: "High" },
@@ -36,7 +40,7 @@ const suggestedCategories = [
   { label: "Bug Fix", color: "#E63946" },
 ];
 
-const AddTaskForm = () => {
+const AddTaskForm = ({ closeDialog }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Medium");
@@ -65,6 +69,7 @@ const AddTaskForm = () => {
     setDescription("");
     setPriority("Medium");
     setCategories([]);
+    closeDialog();
   };
 
   const handleDeleteCategory = (categoryToDelete) => {
@@ -76,21 +81,18 @@ const AddTaskForm = () => {
       )
     );
   };
-
   return (
-    <Box component="form" onSubmit={handleSubmit}>
-      <TextField
+    <StyledBox component="form" onSubmit={handleSubmit}>
+      <StyledTextField
         label="Task Title"
         variant="outlined"
         fullWidth
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        margin="normal"
         required
-        sx={{ mb: 2 }}
       />
 
-      <TextField
+      <StyledTextField
         label="Description"
         variant="outlined"
         fullWidth
@@ -98,19 +100,14 @@ const AddTaskForm = () => {
         rows={isMobile ? 2 : 3}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        margin="normal"
-        sx={{ mb: 2 }}
       />
 
-      <InputLabel id="priority-label" sx={{ mt: 1, mb: 1 }}>
-        Priority
-      </InputLabel>
-      <Select
+      <InputLabel id="priority-label">Priority</InputLabel>
+      <StyledSelect
         labelId="priority-label"
         value={priority}
         onChange={(e) => setPriority(e.target.value)}
         fullWidth
-        sx={{ mb: 2 }}
       >
         {priorityOptions.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -119,11 +116,9 @@ const AddTaskForm = () => {
             </Box>
           </MenuItem>
         ))}
-      </Select>
+      </StyledSelect>
 
-      <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
-        Categories
-      </Typography>
+      <StyledTypography variant="subtitle2">Categories</StyledTypography>
 
       <Autocomplete
         multiple
@@ -133,9 +128,7 @@ const AddTaskForm = () => {
           typeof option === "string" ? option : option.label
         }
         value={categories}
-        onChange={(event, newValue) => {
-          setCategories(newValue);
-        }}
+        onChange={(event, newValue) => setCategories(newValue)}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -161,23 +154,18 @@ const AddTaskForm = () => {
             />
           ))
         }
-        sx={{ mb: 2 }}
       />
 
-      <Button
+      <FormButton
         type="submit"
         variant="contained"
         color="primary"
         fullWidth
-        sx={{
-          mt: 2,
-          py: 1,
-          fontSize: isMobile ? "0.875rem" : "1rem",
-        }}
+        isMobile={isMobile}
       >
         Add Task
-      </Button>
-    </Box>
+      </FormButton>
+    </StyledBox>
   );
 };
 

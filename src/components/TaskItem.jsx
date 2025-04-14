@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import {
-  Checkbox,
-  IconButton,
-  Chip,
   Box,
   TextField,
-  Paper,
+  IconButton,
   Typography,
   Stack,
+  Chip,
+  Checkbox,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -16,20 +14,7 @@ import {
   Check as CheckIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
-import {
-  deleteTask,
-  toggleComplete,
-  updateTask,
-} from "../features/tasks/taskSlice";
-
-const StyledCard = styled(Paper)(({ theme, completed }) => ({
-  padding: theme.spacing(2),
-  boxShadow: theme.shadows[0.1],
-  backgroundColor: completed
-    ? theme.palette.action.selected
-    : theme.palette.background.paper,
-}));
+import { StyledCard } from "./StyledComponents";
 
 const priorityLabels = [
   {
@@ -46,22 +31,10 @@ const priorityLabels = [
   },
 ];
 
-const TaskItem = ({ task }) => {
-  const dispatch = useDispatch();
+const TaskItem = ({ task, onDelete, onEdit, toggleTaskStatus }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDescription, setEditDescription] = useState(task.description);
-
-  const handleUpdate = () => {
-    dispatch(
-      updateTask({
-        id: task.id,
-        title: editTitle,
-        description: editDescription,
-      })
-    );
-    setIsEditing(false);
-  };
 
   return (
     <StyledCard sx={{ width: "100%" }} completed={task.completed}>
@@ -74,7 +47,7 @@ const TaskItem = ({ task }) => {
         >
           <Checkbox
             checked={task.completed}
-            onChange={() => dispatch(toggleComplete(task.id))}
+            onChange={() => toggleTaskStatus(task)}
             sx={{ mt: isEditing ? "6px" : "2px" }}
           />
           <Box flexGrow={1}>
@@ -153,7 +126,10 @@ const TaskItem = ({ task }) => {
               {isEditing ? (
                 <>
                   <IconButton
-                    onClick={handleUpdate}
+                    onClick={() => {
+                      onEdit(task, editTitle, editDescription);
+                      return setIsEditing(false);
+                    }}
                     color="primary"
                     size="small"
                   >
@@ -172,10 +148,7 @@ const TaskItem = ({ task }) => {
                   <IconButton onClick={() => setIsEditing(true)} size="small">
                     <EditIcon fontSize="small" />
                   </IconButton>
-                  <IconButton
-                    onClick={() => dispatch(deleteTask(task.id))}
-                    size="small"
-                  >
+                  <IconButton onClick={() => onDelete(task)} size="small">
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </>

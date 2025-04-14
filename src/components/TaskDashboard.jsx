@@ -1,86 +1,119 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { Paper, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { SearchBar, FilterControls, AddTaskForm, TaskList } from "./index";
-
-const DashboardContainer = styled("div")(({ theme }) => ({
-  gap: theme.spacing(3),
-  padding: theme.spacing(2),
-  maxWidth: "1200px",
-  margin: "0 auto",
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(3),
-  },
-}));
-
-const SectionPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-  borderRadius: "12px",
-  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-  },
-}));
-
-const HeaderSection = styled(SectionPaper)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  padding: theme.spacing(3),
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(4),
-  },
-}));
-
-const ContentRow = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(3),
-  [theme.breakpoints.up("md")]: {
-    flexDirection: "row",
-  },
-}));
-
-const LeftColumn = styled("div")(({ theme }) => ({
-  flex: 1,
-  [theme.breakpoints.up("md")]: {
-    flex: "0 0 33%",
-    maxWidth: "33%",
-  },
-}));
-
-const RightColumn = styled("div")(({ theme }) => ({
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(3),
-  [theme.breakpoints.up("md")]: {
-    flexDirection: "row",
-  },
-}));
-
-const TaskListContainer = styled("div")(({ theme }) => ({
-  flex: 1,
-  [theme.breakpoints.up("md")]: {
-    flex: "0 0 60%",
-    maxWidth: "60%",
-  },
-}));
-
-const TaskFormContainer = styled("div")(({ theme }) => ({
-  flex: 1,
-  [theme.breakpoints.up("md")]: {
-    flex: "0 0 40%",
-    maxWidth: "40%",
-  },
-}));
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import {
+  Typography,
+  useMediaQuery,
+  useTheme,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
+import {
+  SearchBar,
+  FilterControls,
+  AddTaskForm,
+  TaskList,
+  TaskCompletionStats,
+} from "./index";
+import {
+  DashboardContainer,
+  SectionPaper,
+  HeaderSection,
+  ContentRow,
+  LeftColumn,
+  RightColumn,
+  TaskListContainer,
+  StyledButton,
+} from "./StyledComponents";
+import {
+  deleteTask,
+  toggleComplete,
+  updateTask,
+  setSearchQuery,
+  setFilter,
+} from "../features/tasks/taskSlice";
+import { generateCSV } from "../utils/helpers";
 
 const TaskDashboard = () => {
-  const tasks = useSelector((state) => state.tasks.tasks);
+  const dispatch = useDispatch();
+  const { tasks, filter, searchQuery, reorderTasks } = useSelector(
+    (state) => state.tasks
+  );
+
+  const [openDialog, setOpenDialog] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleDialogOpen = () => setOpenDialog(true);
+  const handleDialogClose = () => setOpenDialog(false);
+
+  const handleSearchChange = (e) => {
+    dispatch(setSearchQuery(e.target.value));
+  };
+  const handleImport = (event) => {};
+
+  const handleExport = () => {
+    const headers = ["Task Name", "Description", "Status", "Priority"];
+    const rows = tasks.map((task) => [
+      task.title,
+      task.description,
+      task.completed ? "Completed" : "Pending",
+      task.priority,
+    ]);
+    generateCSV(headers, rows);
+  };
+  const handleShare = () => {
+    console.log("Tasks shared with others!");
+  };
+
+  const handleFilterChange = (event, newFilter) => {
+    if (newFilter !== null) {
+      dispatch(setFilter(newFilter));
+    }
+  };
+
+  const handleDragEnd = (result) => {
+    const { source, destination } = result;
+    if (!destination || destination.index === source.index) return;
+
+    const draggedId = filteredTasks[source.index].id;
+    const targetId = filteredTasks[destination.index].id;
+
+    dispatch(
+      reorderTasks({
+        draggedId,
+        targetId,
+        direction: destination.index > source.index ? "down" : "up",
+      })
+    );
+  };
+
+  const toggleTaskStatus = (task) => dispatch(toggleComplete(task.id));
+  const handleUpdate = (task, editTitle, editDescription) =>
+    dispatch(
+      updateTask({
+        id: task.id,
+        title: editTitle,
+        description: editDescription,
+      })
+    );
+  const handleDelete = (task) => dispatch(deleteTask(task.id));
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "completed" && task.completed) ||
+      (filter === "active" && !task.completed);
+
+    const matchesSearch =
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <DashboardContainer>
@@ -90,46 +123,72 @@ const TaskDashboard = () => {
           component="h1"
           gutterBottom
         >
-          Task Manager
+          Task Tracker
         </Typography>
         <Typography variant={isMobile ? "body1" : "subtitle1"}>
           Organize and track your tasks efficiently
         </Typography>
       </HeaderSection>
-
+      <TaskCompletionStats tasks={filteredTasks} />
       <ContentRow>
         <LeftColumn>
           <SectionPaper elevation={1}>
+            <StyledButton
+              variant="contained"
+              color="primary"
+              startIcon={<AddCircleIcon />}
+              onClick={handleDialogOpen}
+              sx={{ marginTop: theme.spacing(3) }}
+            >
+              Add New Task
+            </StyledButton>
             <Typography variant="h6" gutterBottom>
               Search Tasks
             </Typography>
-            <SearchBar />
-            <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+            <SearchBar onSearch={handleSearchChange} />
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ marginTop: theme.spacing(3) }}
+            >
               Filter Tasks
             </Typography>
-            <FilterControls />
+            <FilterControls onFilter={handleFilterChange} filter={filter} />
           </SectionPaper>
         </LeftColumn>
+
         <RightColumn>
           <TaskListContainer>
             <SectionPaper elevation={1}>
               <Typography variant="h6" gutterBottom>
                 Your Tasks
               </Typography>
-              <TaskList tasks={tasks} />
+              <TaskList
+                onImport={handleImport}
+                onShare={handleShare}
+                onExport={handleExport}
+                tasks={filteredTasks}
+                onDrag={handleDragEnd}
+                toggleTaskStatus={toggleTaskStatus}
+                onDelete={handleDelete}
+                onEdit={handleUpdate}
+              />
             </SectionPaper>
           </TaskListContainer>
-
-          <TaskFormContainer>
-            <SectionPaper elevation={1}>
-              <Typography variant="h6" gutterBottom>
-                Add New Task
-              </Typography>
-              <AddTaskForm />
-            </SectionPaper>
-          </TaskFormContainer>
         </RightColumn>
       </ContentRow>
+
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>Add New Task</DialogTitle>
+        <DialogContent>
+          <AddTaskForm closeDialog={handleDialogClose} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </DashboardContainer>
   );
 };

@@ -1,6 +1,4 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { setSearchQuery } from "../features/tasks/taskSlice";
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -13,19 +11,13 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const SearchBar = () => {
-  const dispatch = useDispatch();
-
-  const handleSearchChange = (e) => {
-    dispatch(setSearchQuery(e.target.value));
-  };
-
+const SearchBar = ({ onSearch }) => {
   return (
     <StyledTextField
       label="Search Tasks"
       variant="outlined"
       fullWidth
-      onChange={handleSearchChange}
+      onChange={onSearch}
       placeholder="Search by title or description..."
     />
   );
