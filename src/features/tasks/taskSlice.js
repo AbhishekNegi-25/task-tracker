@@ -1,77 +1,89 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
+import {
+  saveTasksToLocalStorage,
+  loadTasksFromLocalStorage,
+} from "../../utils/storageHelper";
 
 const initialState = {
   tasks: JSON.parse(localStorage.getItem("tasks")) || [],
-  filters: {
-    status: "all",
-    priority: "all",
-    search: "",
-  },
+  filter: "all",
+  searchQuery: "",
 };
 
-const taskSlice = createSlice({
+const tasksSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
     addTask: {
-      reducer(state, action) {
+      reducer: (state, action) => {
         state.tasks.push(action.payload);
+        saveTasksToLocalStorage(state.tasks);
       },
-      prepare({ title, description, priority, categories }) {
-        return {
-          payload: {
-            id: nanoid(),
-            title,
-            description,
-            priority,
-            categories,
-            completed: false,
-            createdAt: new Date().toISOString(),
-          },
-        };
-      },
+      prepare: ({ title, description, priority, categories }) => ({
+        payload: {
+          id: nanoid(),
+          title,
+          description,
+          completed: false,
+          priority,
+          categories: categories || [],
+          createdAt: new Date().toISOString(),
+        },
+      }),
     },
-    toggleTask(state, action) {
-      const task = state.tasks.find((task) => task.id === action.payload);
-      if (task) task.completed = !task.completed;
-    },
-    deleteTask(state, action) {
+    deleteTask: (state, action) => {
       state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+
+      saveTasksToLocalStorage(state.tasks);
     },
-    updateTask: (state, action) => {
-      const index = state.tasks.findIndex(
-        (task) => task.id === action.payload.id
-      );
-      if (index !== -1) {
-        state.tasks[index] = action.payload;
+    toggleComplete: (state, action) => {
+      const task = state.tasks.find((task) => task.id === action.payload);
+      if (task) {
+        task.completed = !task.completed;
+        saveTasksToLocalStorage(state.tasks);
       }
     },
-    setFilter(state, action) {
-      state.filters = { ...state.filters, ...action.payload };
+    updateTask: (state, action) => {
+      const { id, ...updates } = action.payload;
+      const task = state.tasks.find((task) => task.id === id);
+      if (task) {
+        Object.assign(task, updates);
+        saveTasksToLocalStorage(state.tasks);
+      }
+    },
+    setFilter: (state, action) => {
+      state.filter = action.payload;
+    },
+    setSearchQuery: (state, action) => {
+      state.searchQuery = action.payload;
+    },
+    reorderTasks: (state, action) => {
+      const { draggedId, targetId, direction } = action.payload;
+      const tasks = [...state.tasks];
+
+      const draggedIndex = tasks.findIndex((t) => t.id === draggedId);
+      const targetIndex = tasks.findIndex((t) => t.id === targetId);
+
+      if (draggedIndex === -1 || targetIndex === -1) return;
+
+      const [removed] = tasks.splice(draggedIndex, 1);
+      const insertAt = direction === "down" ? targetIndex + 1 : targetIndex;
+      tasks.splice(insertAt, 0, removed);
+
+      state.tasks = tasks;
+      saveTasksToLocalStorage(state.tasks);
     },
   },
 });
 
-export const { addTask, toggleTask, deleteTask, updateTask, setFilter } =
-  taskSlice.actions;
+export const {
+  addTask,
+  deleteTask,
+  toggleComplete,
+  updateTask,
+  setFilter,
+  setSearchQuery,
+  reorderTasks,
+} = tasksSlice.actions;
 
-export const selectFilteredTasks = (state) => {
-  const { tasks } = state.tasks;
-  const { status, priority, search } = state.tasks.filters;
-
-  return tasks.filter((task) => {
-    const matchesStatus =
-      status === "all" ||
-      (status === "completed" && task.completed) ||
-      (status === "active" && !task.completed);
-
-    const matchesPriority = priority === "all" || task.priority === priority;
-    const matchesSearch = task.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    return matchesStatus && matchesPriority && matchesSearch;
-  });
-};
-
-export default taskSlice.reducer;
+export default tasksSlice.reducer;
