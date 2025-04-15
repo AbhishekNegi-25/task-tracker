@@ -11,7 +11,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery, useTheme, Typography } from "@mui/material";
 import {
   ChartSection,
   ChartFlexContainer,
@@ -51,46 +51,59 @@ const TaskCompletionStats = ({ tasks }) => {
   return (
     <ChartSection elevation={1} py={5}>
       <ChartFlexContainer>
-        <ChartWrapper>
-          <ResponsiveContainer width="100%" height={isSmallScreen ? 300 : 340}>
-            <PieChart>
-              <Pie
-                data={dataCompletion}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={isSmallScreen ? 80 : 120}
+        {tasks.length > 0 ? (
+          <>
+            <ChartWrapper>
+              <ResponsiveContainer
+                width="100%"
+                height={isSmallScreen ? 300 : 340}
               >
-                {dataCompletion.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartWrapper>
+                <PieChart>
+                  <Pie
+                    data={dataCompletion}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={isSmallScreen ? 80 : 120}
+                  >
+                    {dataCompletion.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
 
-        <ChartWrapper>
-          <ResponsiveContainer width="100%" height={isSmallScreen ? 300 : 340}>
-            <BarChart data={taskPriorityData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill="#8884d8" radius={[0, 0, 2, 2]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartWrapper>
+            <ChartWrapper>
+              <ResponsiveContainer
+                width="100%"
+                height={isSmallScreen ? 300 : 340}
+              >
+                <BarChart data={taskPriorityData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#8884d8" radius={[0, 0, 2, 2]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartWrapper>
+          </>
+        ) : (
+          <Typography variant="h4">No tasks found.</Typography>
+        )}
       </ChartFlexContainer>
-
-      <CompletionText variant="body1">
-        {completedTasks} of {totalTasks} tasks completed (
-        {Math.round((completedTasks / totalTasks) * 100)}%)
-      </CompletionText>
+      {tasks.length > 0 && (
+        <CompletionText variant="body1">
+          {completedTasks} of {totalTasks} tasks completed (
+          {Math.round((completedTasks / totalTasks) * 100)}%)
+        </CompletionText>
+      )}
     </ChartSection>
   );
 };
